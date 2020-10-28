@@ -1,0 +1,184 @@
+0000: 02 01 00          LJMP  0x0100     
+000b: 02 07 50          LJMP  0x0750     
+0023: 02 03 00          LJMP  0x0300     
+0100: 75 87 00          MOV   PCON, #0x00
+0103: c2 b6             CLR   IP2H   
+0105: d2 af             SETB  AREF    
+0107: d2 a9             SETB  SADDR    
+0109: 75 8a 00          MOV   TL0, #0x00
+010c: 75 8c 06          MOV   TH0, #0x06
+010f: 75 8f 00          MOV   CLKREG, #0x00
+0112: 75 94 06          MOV   RH0, #0x06
+0115: 75 92 00          MOV   RL0, #0x00
+0118: 75 88 50          MOV   TCON, #0x50
+011b: 75 98 50          MOV   SCON, #0x50
+011e: 75 c6 01          MOV   P3M0, #0x01
+0121: 75 c7 02          MOV   P3M1, #0x02
+0124: d2 b0             SETB  P3    
+0126: d2 b1             SETB  B1    
+0128: 75 8d dc          MOV   TH1, #0xDC
+012b: 75 89 20          MOV   TMOD, #0x20
+012e: d2 9c             SETB  GPIEN    
+0130: d2 ac             SETB  AC    
+0132: c2 98             CLR   SCON   
+0134: 75 50 ff          MOV   50, #0xFF
+0137: 75 30 01          MOV   30, #0x01
+013a: 75 31 05          MOV   31, #0x05
+013d: 75 32 ff          MOV   32, #0xFF
+0140: 75 33 cc          MOV   33, #0xCC
+0143: d2 b6             SETB  IP2H    
+0145: c2 c2             CLR   P1M0   
+0147: d2 b4             SETB  IE2    
+0149: d2 b5             SETB  IP2    
+014b: d2 b7             SETB  IPH    
+014d: 75 58 a2          MOV   58, #0xA2
+0150: 12 07 00          LCALL ??0006     
+0153: 75 58 a0          MOV   58, #0xA0
+0156: 12 07 00          LCALL ??0006     
+0159: 75 58 c8          MOV   58, #0xC8
+015c: 12 07 00          LCALL ??0006     
+015f: 00                NOP          
+0160: 00                NOP          
+0161: 75 58 40          MOV   58, #0x40
+0164: 12 07 00          LCALL ??0006     
+0167: 75 58 25          MOV   58, #0x25
+016a: 12 07 00          LCALL ??0006     
+016d: 75 58 81          MOV   58, #0x81
+0170: 12 07 00          LCALL ??0006     
+0173: 75 58 15          MOV   58, #0x15
+0176: 12 07 00          LCALL ??0006     
+0179: 75 58 2f          MOV   58, #0x2F
+017c: 12 07 00          LCALL ??0006     
+017f: 75 58 af          MOV   58, #0xAF
+0182: 12 07 00          LCALL ??0006     
+0185: c2 c2             CLR   P1M0   
+0187: 75 58 b0          MOV   58, #0xB0
+018a: 12 07 00          LCALL ??0006     
+018d: 12 06 00          LCALL ??0002     
+0190: c2 c2             CLR   P1M0   
+0192: 75 58 b1          MOV   58, #0xB1
+0195: 12 07 00          LCALL ??0006     
+0198: 12 06 00          LCALL ??0002     
+019b: c2 c2             CLR   P1M0   
+019d: 75 58 b2          MOV   58, #0xB2
+01a0: 12 07 00          LCALL ??0006     
+01a3: 12 06 00          LCALL ??0002     
+01a6: c2 c2             CLR   P1M0   
+01a8: 75 58 b3          MOV   58, #0xB3
+01ab: 12 07 00          LCALL ??0006     
+01ae: 12 06 00          LCALL ??0002     
+01b1: c2 c2             CLR   P1M0   
+01b3: 75 58 b4          MOV   58, #0xB4
+01b6: 12 07 00          LCALL ??0006     
+01b9: 12 06 00          LCALL ??0002     
+01bc: c2 c2             CLR   P1M0   
+01be: 75 58 b5          MOV   58, #0xB5
+01c1: 12 07 00          LCALL ??0006     
+01c4: 12 06 00          LCALL ??0002     
+01c7: c2 c2             CLR   P1M0   
+01c9: 75 58 b6          MOV   58, #0xB6
+01cc: 12 07 00          LCALL ??0006     
+01cf: 12 06 00          LCALL ??0002     
+01d2: c2 c2             CLR   P1M0   
+01d4: 75 58 b7          MOV   58, #0xB7
+01d7: 12 07 00          LCALL ??0006     
+01da: 12 06 00          LCALL ??0002     
+01dd: 85 30 40  ??0000: MOV   40, 30
+01e0: 85 31 41          MOV   41, 31
+01e3: 85 32 42          MOV   42, 32
+01e6: 85 33 43          MOV   43, 33
+01e9: e5 50             MOV   A, 50
+01eb: 54 80             ANL   A, #0x80
+01ed: 60 ee             JZ    ??0000    
+01ef: 75 50 00          MOV   50, #0x00
+01f2: c2 c2             CLR   P1M0   
+01f4: 85 40 58          MOV   58, 40
+01f7: 12 07 00          LCALL ??0006     
+01fa: 85 41 58          MOV   58, 41
+01fd: 12 07 00          LCALL ??0006     
+0200: 85 42 58          MOV   58, 42
+0203: 12 07 00          LCALL ??0006     
+0206: 85 33 57          MOV   57, 33
+0209: 12 06 75          LCALL ??0005     
+020c: 02 01 dd          LJMP  ??0000     
+020f: 22        .DB 0x22
+0300: c0 e0             PUSH  ACC   
+0302: c0 f0             PUSH  B   
+0304: c0 83             PUSH  DP0H   
+0306: c0 82             PUSH  DP0L   
+0308: a2 98             MOV   C, SCON 
+030a: 50 18             JNC   ??0001      
+030c: c2 98             CLR   SCON   
+030e: e5 50             MOV   A, 50
+0310: 44 30             ORL   A, #0x30
+0312: f9                MOV   R1, A  
+0313: e5 99             MOV   A, SBUF
+0315: f7                MOV   @R1, A 
+0316: f5 99             MOV   SBUF, A
+0318: e5 50             MOV   A, 50
+031a: 04                INC   A      
+031b: f5 50             MOV   50, A
+031d: b4 04 04          CJNE  A, #0x04, ??0001
+0320: 44 80             ORL   A, #0x80
+0322: f5 50             MOV   50, A
+0324: c2 99     ??0001: CLR   SBUF   
+0326: d0 82             POP   DP0L    
+0328: d0 83             POP   DP0H    
+032a: d0 f0             POP   B    
+032c: d0 e0             POP   ACC    
+032e: 32                RETI         
+0600: 75 59 7c  ??0002: MOV   59, #0x7C
+0603: 75 56 00          MOV   56, #0x00
+0606: 75 57 00          MOV   57, #0x00
+0609: 12 06 50          LCALL ??0004     
+060c: 12 06 75          LCALL ??0005     
+060f: e5 59             MOV   A, 59
+0611: 04                INC   A      
+0612: f5 59             MOV   59, A
+0614: e5 56             MOV   A, 56
+0616: 04                INC   A      
+0617: f5 56             MOV   56, A
+0619: 60 02             JZ    ??0003    
+061b: 80 ec             SJMP  0x0609    
+061d: 22        ??0003: RET          
+0650: c2 c2     ??0004: CLR   P1M0   
+0652: e5 56             MOV   A, 56
+0654: 54 0f             ANL   A, #0x0F
+0656: f5 58             MOV   58, A
+0658: 12 07 00          LCALL ??0006     
+065b: e5 56             MOV   A, 56
+065d: 54 f0             ANL   A, #0xF0
+065f: c4                SWAP  A      
+0660: 24 10             ADD   A, #0x10
+0662: f5 58             MOV   58, A
+0664: 12 07 00          LCALL ??0006     
+0667: 22                RET          
+0675: d2 c2     ??0005: SETB  P1M0    
+0677: 85 57 58          MOV   58, 57
+067a: 12 07 00          LCALL ??0006     
+067d: 22                RET          
+0700: c2 b4     ??0006: CLR   IE2   
+0702: c2 b5             CLR   IP2   
+0704: 85 58 90          MOV   P1, 58
+0707: d2 b5             SETB  IP2    
+0709: d2 b4             SETB  IE2    
+070b: 22                RET          
+0750: c0 e0             PUSH  ACC   
+0752: c0 82             PUSH  DP0L   
+0754: c0 83             PUSH  DP0H   
+0756: 80 00             SJMP  0x0758    
+0758: e5 54             MOV   A, 54
+075a: 04                INC   A      
+075b: f5 54             MOV   54, A
+075d: 60 02             JZ    ??0007    
+075f: 80 0f             SJMP  0x0770    
+0761: 75 54 82  ??0007: MOV   54, #0x82
+0764: e5 55             MOV   A, 55
+0766: 70 05             JNZ   ??0008      
+0768: 75 55 01          MOV   55, #0x01
+076b: 80 03             SJMP  0x0770    
+076d: 75 55 00  ??0008: MOV   55, #0x00
+0770: d0 83             POP   DP0H    
+0772: d0 82             POP   DP0L    
+0774: d0 e0             POP   ACC    
+0776: 32                RETI         

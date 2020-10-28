@@ -1,0 +1,8 @@
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\bin\Release\8051 Control GUI.exe
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\bin\Release\8051 Control GUI.pdb
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\8051 Control GUI.csprojResolveAssemblyReference.cache
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\_8051_Control_GUI.Form1.resources
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\_8051_Control_GUI.Properties.Resources.resources
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\8051 Control GUI.csproj.GenerateResource.Cache
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\8051 Control GUI.exe
+c:\users\histo\documents\visual studio 2015\Projects\8051 Control GUI\8051 Control GUI\obj\Release\8051 Control GUI.pdb

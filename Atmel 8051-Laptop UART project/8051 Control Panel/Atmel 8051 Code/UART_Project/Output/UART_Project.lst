@@ -1,0 +1,832 @@
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 1
+
+
+
+
+
+        8051 Macro Assembler   C 5 1 A S M   V 1.4
+        ==========================================
+
+
+
+        Source File:     C:\Users\histo\Documents\Atmel 8051 Project\UART_Project\UART_Project\UART_Project.asm
+        Object File(s):  C:\Users\histo\Documents\Atmel 8051 Project\UART_Project\UART_Project\Output\UART_Project.hex C:\Users\histo\Documents\Atmel 8051 Project\UART_Project\UART_Project\Output\UART_Project.omf
+        List File:       C:\Users\histo\Documents\Atmel 8051 Project\UART_Project\UART_Project\Output\UART_Project.lst
+
+
+
+ Line    I  Addr Code           Source
+
+    1:   1                      $INCLUDE (AT89LP428.inc)
+    2:   1                      ;*H*************************************
+    3:   1                      ; NAME: at89lp428.inc           
+    4:   1                      ;---------------------------------------
+    5:   1                      ; PURPOSE: SFR Description file for AT89
+    6:   1                      ;***************************************
+    7:   1                      
+    8:   1                      $SAVE    
+  228:   1                      $RESTORE
+  229:   1                      $INCLUDE(.\UART_Project.h)
+  230:                          
+  231:                          ;Define DATA
+  232:           D        00    TIME_SECOND_L			DATA 00h
+  233:           D        01    TIME_SECOND_H			DATA 01h
+  234:           D        02    TIME_MINUTE				DATA 02h
+  235:           D        03    TIME_HOUR				DATA 03h
+  236:           D        30    MSG1					DATA 30H ;LCD page
+  237:           D        31    MSG2					DATA 31H ;LCD column high
+  238:           D        32    MSG3					DATA 32H ;LCD column low
+  239:           D        33    MSG4					DATA 33H ;LCD write data
+  240:                          
+  241:                          ;msg backups
+  242:           D        40    RDATA1					DATA 40H
+  243:           D        41    RDATA2					DATA 41H
+  244:           D        42    RDATA3					DATA 42H
+  245:           D        43    RDATA4					DATA 43H
+  246:                          
+  247:                          ;RECEIVE_COUNTER_FLAG bits:
+  248:                          ;7		6		5		4		3		2		1		0
+  249:                          ;FLAG	Res.	Res.	Res.	Res.	Res.	CNT1	CNT0
+  250:           D        50    RECEIVE_COUNTER_FLAG	DATA 50H
+  251:                          
+  252:           D        54    TIME_SECOND				DATA 54H
+  253:           D        55    DISPFLAG				DATA 55H
+  254:           D        56    COLADDRESS				DATA 56H
+  255:           D        57    WDATA					DATA 57H
+  256:           D        58    LCD_DATA				DATA 58H
+  257:           D        59    ADD_COUNTER				DATA 59H
+  258:                          ;SBUF					DATA 99H
+  259:                          
+  260:                          ;Define BIT ADDRESS
+  261:           B        C2    LCD_A0			BIT 	P4.2
+  262:           B        B4    LCD_CS			BIT     P3.4
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 2
+
+
+
+ Line    I  Addr Code           Source
+
+  263:           B        B5    LCD_WR			BIT     P3.5
+  264:           B        B6    B_RSTB			BIT		P3.6
+  265:           B        B7    LCD_RD			BIT     P3.7
+  266:                          
+  267:                          ;SCON Bit Address
+  268:                          ;SM0				BIT		SCON.7
+  269:                          ;SM1				BIT		SCON.6
+  270:                          ;SM2				BIT		SCON.5
+  271:                          ;REN				BIT		SCON.4
+  272:                          ;TB8				BIT		SCON.3
+  273:                          ;RB8				BIT		SCON.2
+  274:                          ;T1					BIT		SCON.1
+  275:                          ;R1					BIT		SCON.0
+  276:                          
+  277:                          ;Interrupt Bit Address
+  278:                          ;EX0				BIT		IE.0
+  279:                          ;ET0				BIT		IE.1
+  280:                          ;EX1				BIT		IE.2
+  281:                          ;ET1				BIT     IE.3
+  282:                          ;ET2				BIT		IE.5
+  283:                          ;EA					BIT		IE.7
+  284:                          
+  285:                          ; INTERRUPT PRIORITY LOW BIT ADDRESS
+  286:                          ;PX0				BIT     IP.0
+  287:                          ;PT0				BIT 	IP.1
+  288:                          ;PX1				BIT		IP.2
+  289:                          ;PT1				BIT		IP.3
+  290:                          ;PT2				BIT		IP.5
+  291:           B        BF    IP0D				BIT		IP.7
+  292:                          
+  293:                          ; INTERRUPT PRIORITY HIGH BIT ADDRESS
+  294:                          ;PX0H			BIT		IPH.0
+  295:                          ;PT0H			BIT     IPH.1
+  296:                          ;PX1H           BIT 	IPH.2
+  297:                          ;PT1H			BIT 	IPH.3
+  298:                          ;PT2H			BIT		IPH.5
+  299:                          ;IP1D			BIT		IPH.7
+  300:                          
+  301:                          ;TCON BIT ADDRESS
+  302:                          ;IT0				BIT		TCON.0
+  303:                          ;IE0				BIT		TCON.1
+  304:                          ;IT1				BIT		TCON.2
+  305:                          ;IE1				BIT		TCON.3
+  306:                          ;TR0				BIT		TCON.4
+  307:                          ;TF0				BIT		TCON.5
+  308:                          ;TR1				BIT		TCON.6
+  309:                          ;TF1				BIT		TCON.7
+  310:                          
+  311:                          ; DEFINE Constants
+  312:           N      0030    DATA_BUFFER_START       EQU 030H
+  313:           N      0000    TIMER_RELOADVALUE_L 	EQU 000H 
+  314:           N      0006    TIMER0_RELOADVALUE_H	EQU 006H
+  315:           N      00DC    TIMER1_RELOADVALUE_H	EQU 0DCh;7.7Mhz and
+  316:           N      0020    TMOD_TIMER0_VALUE		EQU 020h
+  317:           N      0050    TCON_TIMER0_VALUE		EQU 050h;enable both 
+  318:           N      00B4    TIME_SECOND_L_RELOAD	EQU 0B4h 
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 3
+
+
+
+ Line    I  Addr Code           Source
+
+  319:           N      00E2    TIME_SECOND_H_RELOAD	EQU 0E2h 
+  320:           N      00C4    TIME_MINUTE_RELOAD		EQU 0C4h
+  321:           N      0000    CLKREG_VALUE			EQU 000h
+  322:           N      00FC    RFLAG_RELVALUE			EQU 0FCH
+  323:           N      0082    TIME_SECOND_REL 		EQU 082H
+  324:           N      0050    SCON_REL_VALUE			EQU 050H; mode 1 
+  325:                          ;dSCON_REL_VALUE		EQU 0D0H; mode 3
+  326:           N      0004    MSG_SIZE				EQU	004H
+  327:           N      0001    MSG_REC					EQU 001H
+  328:                          
+  329:           N      0000    org 0000h
+  330:      0000 02 01 00       LJMP init
+  331:                          
+  332:           N      000B    org 000Bh
+  333:      000B 02 07 50       LJMP TIMER0_PROCESS
+  334:                          
+  335:           N      0023    org 0023h
+  336:      0023 02 03 00       LJMP SPINT_PROCESS
+  337:                          
+  338:           N      0100    org 0100h
+  339:                          init:
+  340:                          ; Timer 0 configure 0.1s timer. TPS valu
+  341:      0100 75 87 00       MOV PCON, #00H
+  342:      0103 C2 B6          CLR B_RSTB
+  343:      0105 D2 AF          SETB EA
+  344:      0107 D2 A9          SETB ET0
+  345:      0109 75 8A 00       MOV TL0, #TIMER_RELOADVAlUE_L
+  346:      010C 75 8C 06       MOV TH0, #TIMER0_RELOADVALUE_H
+  347:      010F 75 8F 00       MOV CLKREG, #CLKREG_VALUE
+  348:      0112 75 94 06       MOV RH0, #TIMER0_RELOADVALUE_H
+  349:      0115 75 92 00       MOV RL0, #TIMER_RELOADVALUE_L
+  350:      0118 75 88 50       MOV TCON, #TCON_TIMER0_VALUE
+  351:      011B 75 98 50       MOV SCON, #SCON_REL_VALUE
+  352:                          ;UART Init
+  353:                            ;P3 init
+  354:      011E 75 C6 01       MOV P3M0, #01H
+  355:      0121 75 C7 02       MOV P3M1, #02H
+  356:      0124 D2 B0          SETB P3.0
+  357:      0126 D2 B1          SETB P3.1
+  358:                            ;Baud rate define 9.6K bit/s
+  359:      0128 75 8D DC       MOV TH1, #TIMER1_RELOADVALUE_H
+  360:      012B 75 89 20       MOV TMOD, #TMOD_TIMER0_VALUE ;Timer 1 Mo
+  361:                            ;RX interrupt enable
+  362:      012E D2 9C          SETB REN
+  363:      0130 D2 AC          SETB ES
+  364:      0132 C2 98          CLR RI
+  365:      0134 75 50 FF       MOV RECEIVE_COUNTER_FLAG,#0FFH;
+  366:      0137 75 30 01       MOV MSG1,#01H
+  367:      013A 75 31 05       MOV MSG2,#05H
+  368:      013D 75 32 FF       MOV MSG3,#0FFH
+  369:      0140 75 33 CC       MOV MSG4,#0CCH
+  370:                          
+  371:                          ; Initial LCD Panel 128 x 64 bits
+  372:      0143 D2 B6          SETB B_RSTB
+  373:      0145 C2 C2          CLR  LCD_A0
+  374:      0147 D2 B4          SETB LCD_CS
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 4
+
+
+
+ Line    I  Addr Code           Source
+
+  375:      0149 D2 B5          SETB LCD_WR
+  376:      014B D2 B7          SETB LCD_RD
+  377:      014D 75 58 A2       MOV LCD_DATA,#0A2H; Bias 1/9
+  378:      0150 12 07 00       LCALL LCD_COMMAND
+  379:      0153 75 58 A0       MOV LCD_DATA,#0A0H;ADC slect normal
+  380:      0156 12 07 00       LCALL LCD_COMMAND
+  381:      0159 75 58 C8       MOV LCD_DATA,#0C8H; Select COM output re
+  382:      015C 12 07 00       LCALL LCD_COMMAND
+  383:      015F 00             NOP
+  384:      0160 00             NOP
+  385:                          ;MOV LCD_DATA,#0C0H;COM output normal di
+  386:                          ;LCALL LCD_COMMAND
+  387:      0161 75 58 40       MOV LCD_DATA,#40H; LCD START LINE 0
+  388:      0164 12 07 00       LCALL LCD_COMMAND
+  389:      0167 75 58 25       MOV LCD_DATA,#25H; Select internal resis
+  390:      016A 12 07 00       LCALL LCD_COMMAND
+  391:      016D 75 58 81       MOV LCD_DATA,#81H ; ELECTORNIC VOLUEME C
+  392:      0170 12 07 00       LCALL LCD_COMMAND
+  393:      0173 75 58 15       MOV LCD_DATA,#15H; Electornic Volume
+  394:      0176 12 07 00       LCALL LCD_COMMAND
+  395:      0179 75 58 2F       MOV LCD_DATA,#2FH; INternal Power supply
+  396:      017C 12 07 00       LCALL LCD_COMMAND
+  397:      017F 75 58 AF       MOV LCD_DATA,#0AFH; LCD ON
+  398:      0182 12 07 00       LCALL LCD_COMMAND
+  399:                          
+  400:                          ;Clear the display
+  401:                          clrdisp:
+  402:                          ;set page to page 0
+  403:      0185 C2 C2          CLR LCD_A0
+  404:      0187 75 58 B0       MOV LCD_DATA, #0B0H
+  405:      018A 12 07 00       LCALL LCD_COMMAND
+  406:      018D 12 06 00       LCALL clrlines
+  407:                          ;set page to page 1
+  408:      0190 C2 C2          CLR LCD_A0
+  409:      0192 75 58 B1       MOV LCD_DATA, #0B1H
+  410:      0195 12 07 00       LCALL LCD_COMMAND
+  411:      0198 12 06 00       LCALL clrlines
+  412:                          ;set page to page 2
+  413:      019B C2 C2          CLR LCD_A0
+  414:      019D 75 58 B2       MOV LCD_DATA, #0B2H
+  415:      01A0 12 07 00       LCALL LCD_COMMAND
+  416:      01A3 12 06 00       LCALL clrlines
+  417:                          ;set page to page 3
+  418:      01A6 C2 C2          CLR LCD_A0
+  419:      01A8 75 58 B3       MOV LCD_DATA, #0B3H
+  420:      01AB 12 07 00       LCALL LCD_COMMAND
+  421:      01AE 12 06 00       LCALL clrlines
+  422:                          ;set page to page 4
+  423:      01B1 C2 C2          CLR LCD_A0
+  424:      01B3 75 58 B4       MOV LCD_DATA, #0B4H
+  425:      01B6 12 07 00       LCALL LCD_COMMAND
+  426:      01B9 12 06 00       LCALL clrlines
+  427:                          ;set page to page 5
+  428:      01BC C2 C2          CLR LCD_A0
+  429:      01BE 75 58 B5       MOV LCD_DATA, #0B5H
+  430:      01C1 12 07 00       LCALL LCD_COMMAND
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 5
+
+
+
+ Line    I  Addr Code           Source
+
+  431:      01C4 12 06 00       LCALL clrlines
+  432:                          ;set page to page 6
+  433:      01C7 C2 C2          CLR LCD_A0
+  434:      01C9 75 58 B6       MOV LCD_DATA, #0B6H
+  435:      01CC 12 07 00       LCALL LCD_COMMAND
+  436:      01CF 12 06 00       LCALL clrlines
+  437:                          ;set page to page 7 
+  438:      01D2 C2 C2          CLR LCD_A0
+  439:      01D4 75 58 B7       MOV LCD_DATA, #0B7H
+  440:      01D7 12 07 00       LCALL LCD_COMMAND
+  441:      01DA 12 06 00       LCALL clrlines
+  442:                          
+  443:                          ;UART segment
+  444:                          UART:
+  445:      01DD 85 30 40       MOV RDATA1, MSG1
+  446:      01E0 85 31 41       MOV RDATA2, MSG2
+  447:      01E3 85 32 42       MOV RDATA3, MSG3
+  448:      01E6 85 33 43       MOV RDATA4, MSG4
+  449:      01E9 E5 50          MOV A, RECEIVE_COUNTER_FLAG
+  450:      01EB 54 80          ANL A, #80H
+  451:      01ED 60 EE          JZ UART
+  452:                          
+  453:                          UART_true:
+  454:                          ;disable UART interrupt
+  455:                          ;reset counter/flag
+  456:      01EF 75 50 00       MOV RECEIVE_COUNTER_FLAG, #00H
+  457:                          ;pg set
+  458:      01F2 C2 C2          CLR LCD_A0
+  459:      01F4 85 40 58       MOV LCD_DATA, RDATA1
+  460:      01F7 12 07 00       LCALL LCD_COMMAND
+  461:                          ;col address set
+  462:      01FA 85 41 58       MOV LCD_DATA, RDATA2
+  463:      01FD 12 07 00       LCALL LCD_COMMAND
+  464:      0200 85 42 58       MOV LCD_DATA, RDATA3
+  465:      0203 12 07 00       LCALL LCD_COMMAND
+  466:                          ;write data
+  467:      0206 85 33 57       MOV WDATA, MSG4
+  468:      0209 12 06 75       LCALL WRITEDATA
+  469:                          
+  470:                          ;SEND_OK1:
+  471:                          ;disable receive
+  472:                          ;CLR REN
+  473:                          ;CLR ES
+  474:                          
+  475:                          ;SEND_OK2:
+  476:                          ;send message OK byte
+  477:                          ;MOV SBUF, #MSG_REC
+  478:                          ;MOV SBUF, RDATA1
+  479:                          
+  480:                          ;WAIT:
+  481:                          ;MOV C, TI
+  482:                          ;JNC WAIT
+  483:                          ;CLR TI
+  484:                          ;MOV SBUF, RDATA2
+  485:                          ;WAIT1:
+  486:                          ;MOV C, TI
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 6
+
+
+
+ Line    I  Addr Code           Source
+
+  487:                          ;JNC WAIT1
+  488:                          ;CLR TI
+  489:                          ;MOV SBUF, RDATA3
+  490:                          ;WAIT2:
+  491:                          ;MOV C, TI
+  492:                          ;JNC WAIT2
+  493:                          ;CLR TI
+  494:                          ;MOV SBUF, RDATA4
+  495:                          
+  496:                          ;WAIT3:
+  497:                          ;;MOV C, TI
+  498:                          ;JC ENABLE_UART_REC
+  499:                          ;MOV A, DISPFLAG
+  500:                          ;JZ WAIT3
+  501:                          
+  502:                          ;ENABLE_UART_REC:
+  503:                          ;enable UART receiver
+  504:                          ;CLR TI
+  505:                          
+  506:                          ;SETB REN
+  507:                          ;SETB ES
+  508:      020C 02 01 DD       LJMP UART
+  509:                          
+  510:      020F 22             RET
+  511:                          
+  512:           N      0600    org 0600h
+  513:                          ;code for clearing all lines on a page
+  514:                          clrlines:
+  515:      0600 75 59 7C       MOV ADD_COUNTER, #7CH
+  516:      0603 75 56 00       MOV COLADDRESS, #00H
+  517:      0606 75 57 00       MOV WDATA, #00H
+  518:                          
+  519:                          clrlines_loop:
+  520:      0609 12 06 50       LCALL COLADD_SET 
+  521:      060C 12 06 75       LCALL WRITEDATA
+  522:      060F E5 59          MOV A, ADD_COUNTER
+  523:      0611 04             INC A
+  524:      0612 F5 59          MOV ADD_COUNTER, A
+  525:      0614 E5 56          MOV A, COLADDRESS
+  526:      0616 04             INC A
+  527:      0617 F5 56          MOV COLADDRESS, A
+  528:      0619 60 02          JZ clrlines_return
+  529:      061B 80 EC          SJMP clrlines_loop
+  530:                          
+  531:                          clrlines_return:
+  532:      061D 22             RET
+  533:                          
+  534:           N      0650    org 0650h
+  535:                          COLADD_SET:
+  536:      0650 C2 C2          CLR LCD_A0
+  537:                          ;set lower bit
+  538:      0652 E5 56          MOV A, COLADDRESS
+  539:      0654 54 0F          ANL A, #0FH
+  540:      0656 F5 58          MOV LCD_DATA, A
+  541:      0658 12 07 00       LCALL LCD_COMMAND
+  542:                          ;set higher bit
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 7
+
+
+
+ Line    I  Addr Code           Source
+
+  543:      065B E5 56          MOV A, COLADDRESS
+  544:      065D 54 F0          ANL A, #0F0H
+  545:      065F C4             SWAP A
+  546:      0660 24 10          ADD A, #10H
+  547:      0662 F5 58          MOV LCD_DATA, A
+  548:      0664 12 07 00       LCALL LCD_COMMAND
+  549:      0667 22             RET
+  550:                          
+  551:           N      0675    org 0675h
+  552:                          WRITEDATA:
+  553:                          ;write in pixel data
+  554:      0675 D2 C2          SETB LCD_A0
+  555:      0677 85 57 58       MOV LCD_DATA, WDATA
+  556:      067A 12 07 00       LCALL LCD_COMMAND
+  557:      067D 22             RET
+  558:                          
+  559:           N      0700    org 0700h
+  560:                          LCD_COMMAND:
+  561:      0700 C2 B4          CLR LCD_CS ;
+  562:      0702 C2 B5          CLR LCD_WR
+  563:      0704 85 58 90       MOV P1, LCD_DATA;
+  564:      0707 D2 B5          SETB LCD_WR
+  565:      0709 D2 B4          SETB LCD_CS
+  566:      070B 22             RET
+  567:                          
+  568:           N      0750    org 0750h
+  569:                          TIMER0_PROCESS:
+  570:      0750 C0 E0          PUSH ACC	
+  571:      0752 C0 82          PUSH DPL
+  572:      0754 C0 83          PUSH DPH
+  573:      0756 80 00          SJMP NEXT_TIMER0
+  574:                          
+  575:                          NEXT_TIMER0:
+  576:      0758 E5 54          MOV A, TIME_SECOND
+  577:      075A 04             INC A
+  578:      075B F5 54          MOV TIME_SECOND, A
+  579:      075D 60 02          JZ SECOND_FLAG
+  580:      075F 80 0F          SJMP TIMER0_RETURN
+  581:                          
+  582:                          SECOND_FLAG:
+  583:      0761 75 54 82       MOV TIME_SECOND, #TIME_SECOND_REL ;#82H
+  584:      0764 E5 55          MOV A, DISPFLAG
+  585:      0766 70 05          JNZ DF_WAS_TRUE
+  586:      0768 75 55 01       MOV DISPFLAG, #01H
+  587:      076B 80 03          SJMP TIMER0_RETURN
+  588:                          
+  589:                          DF_WAS_TRUE:
+  590:      076D 75 55 00       MOV DISPFLAG, #00H
+  591:                          
+  592:                          TIMER0_RETURN:
+  593:      0770 D0 83          POP DPH
+  594:      0772 D0 82          POP DPL
+  595:      0774 D0 E0          POP ACC
+  596:      0776 32             RETI
+  597:                          
+  598:           N      0300    org 0300h
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 8
+
+
+
+ Line    I  Addr Code           Source
+
+  599:                          SPINT_PROCESS:
+  600:                          ;push
+  601:      0300 C0 E0          PUSH ACC
+  602:      0302 C0 F0          PUSH B
+  603:      0304 C0 83          PUSH DPH
+  604:      0306 C0 82          PUSH DPL
+  605:                          
+  606:                          ;disable interrupt
+  607:                          ;CLR REN
+  608:      0308 A2 98          MOV C, RI;
+  609:      030A 50 18          JNC SPINT_RETURN;
+  610:      030C C2 98          CLR RI
+  611:                          ;data buffer address bit 1 and 0 -> A
+  612:      030E E5 50          MOV A, RECEIVE_COUNTER_FLAG
+  613:                          ;generate data buffer address
+  614:      0310 44 30          ORL A, #DATA_BUFFER_START
+  615:                          ;move receive data to data buffer
+  616:      0312 F9             MOV R1, A
+  617:                          ;move received data to R1 location
+  618:      0313 E5 99          MOV A, SBUF
+  619:      0315 F7             MOV @R1, A
+  620:      0316 F5 99          MOV SBUF,A
+  621:                          ;increment RECEIVE_COUNTER_FLAG
+  622:                          ;if all messages received set message fl
+  623:                          ;if message flag is 1, receive data and 
+  624:      0318 E5 50          MOV A, RECEIVE_COUNTER_FLAG
+  625:      031A 04             INC A
+  626:      031B F5 50          MOV RECEIVE_COUNTER_FLAG, A
+  627:      031D B4 04 04       CJNE A, #MSG_SIZE, SPINT_RETURN
+  628:      0320 44 80          ORL A, #80H
+  629:      0322 F5 50          MOV RECEIVE_COUNTER_FLAG, A
+  630:                          
+  631:                          SPINT_RETURN:
+  632:      0324 C2 99          CLR TI
+  633:                          ;SETB REN
+  634:      0326 D0 82          POP DPL
+  635:      0328 D0 83          POP DPH
+  636:      032A D0 F0          POP B
+  637:      032C D0 E0          POP ACC
+  638:      032E 32             RETI
+  639:                          
+  640:                          END
+
+C51ASM V1.4             Copyright (c) 2009 Atmel Corp.            PAGE 9
+
+
+
+
+Segment usage:
+   Code      :    442 bytes
+   Data      :      0 bytes
+   Idata     :      0 bytes
+   Edata     :      0 bytes
+   Fdata     :      0 bytes
+   Xdata     :      0 bytes
+   Bit       :      0 bits
+
+   Register banks used: ---
+
+   Warnings: 0
+   Errors:   0
+
+
+C51ASM V1.4            Copyright (c) 2009 Atmel Corp.            PAGE 10
+
+
+
+              L I S T   O F   S Y M B O L S
+              =============================
+
+
+SYMBOL                           TYPE     VALUE     LINE
+--------------------------------------------------------
+??C51ASM                         NUMBER   8051
+??CODE_SIZE                      NUMBER   0000
+??DEVICE                         NUMBER   0000
+??ERAM_SIZE                      NUMBER   0000
+??FDATA_SIZE                     NUMBER   0000
+??RAM_SIZE                       NUMBER   0100
+??VERSION                        NUMBER   0140
+??_AT89C2051_                    NUMBER   001D
+??_AT89C4051_                    NUMBER   001E
+??_AT89C51ED2_                   NUMBER   0028
+??_AT89C51IC2_                   NUMBER   0026
+??_AT89C51ID2_                   NUMBER   0027
+??_AT89C51RB2_                   NUMBER   0023
+??_AT89C51RC2_                   NUMBER   0024
+??_AT89C51RC_                    NUMBER   0022
+??_AT89C51RD2_                   NUMBER   0025
+??_AT89C51_                      NUMBER   001F
+??_AT89C52_                      NUMBER   0020
+??_AT89C55WD_                    NUMBER   0021
+??_AT89LP2052_                   NUMBER   0001
+??_AT89LP213_                    NUMBER   0003
+??_AT89LP214_                    NUMBER   0004
+??_AT89LP216_                    NUMBER   0005
+??_AT89LP3240_                   NUMBER   000A
+??_AT89LP4052_                   NUMBER   0002
+??_AT89LP428_                    NUMBER   0006
+??_AT89LP51CC01_                 NUMBER   0012
+??_AT89LP51CC03_                 NUMBER   0013
+??_AT89LP51ED2_                  NUMBER   0011
+??_AT89LP51IC2_                  NUMBER   000E
+??_AT89LP51ID2_                  NUMBER   0010
+??_AT89LP51RB2_                  NUMBER   000C
+??_AT89LP51RC2_                  NUMBER   000D
+??_AT89LP51RD2_                  NUMBER   000F
+??_AT89LP51_                     NUMBER   0007
+??_AT89LP52_                     NUMBER   0008
+??_AT89LP6440_                   NUMBER   000B
+??_AT89LP828_                    NUMBER   0009
+??_AT89LS51_                     NUMBER   001B
+??_AT89LS52_                     NUMBER   001C
+??_AT89S2051_                    NUMBER   0014
+??_AT89S4051_                    NUMBER   0015
+??_AT89S51_                      NUMBER   0016
+??_AT89S52_                      NUMBER   0017
+??_AT89S53_                      NUMBER   0018
+??_AT89S8252_                    NUMBER   0019
+??_AT89S8253_                    NUMBER   001A
+??_DEFAULT_                      NUMBER   0000
+AC                               BIT        D6        83
+ACC                              DATA       E0        92
+ACSRA                            DATA       97       224
+ACSRB                            DATA       9F       225
+ADD_COUNTER                      DATA       59       257
+AREF                             DATA       AF       226
+AUXR                             DATA       8E       101
+
+C51ASM V1.4            Copyright (c) 2009 Atmel Corp.            PAGE 11
+
+
+
+SYMBOL                           TYPE     VALUE     LINE
+--------------------------------------------------------
+AUXR1                            DATA       A2       102
+B                                DATA       F0        93
+B_RSTB                           BIT        B6       264
+CCA                              BIT        A0        45
+CCB                              BIT        A1        44
+CCC                              BIT        A2        43
+CCD                              BIT        A3        42
+CLKREG                           DATA       8F       199
+CLKREG_VALUE                     NUMBER   0000       321
+CLRDISP                          CODE     0185       401
+CLRLINES                         CODE     0600       514
+CLRLINES_LOOP                    CODE     0609       519
+CLRLINES_RETURN                  CODE     061D       531
+COLADDRESS                       DATA       56       254
+COLADD_SET                       CODE     0650       535
+CP_RL2                           BIT        C8       127
+CY                               BIT        D7        82
+C_T2                             BIT        C9       126
+DATA_BUFFER_START                NUMBER   0030       312
+DF_WAS_TRUE                      CODE     076D       589
+DISPFLAG                         DATA       55       253
+DISSO                            BIT        E9       217
+DP0H                             DATA       83        98
+DP0L                             DATA       82        97
+DP1H                             DATA       85       100
+DP1L                             DATA       84        99
+DPCF                             DATA       A2       103
+DPH                              DATA       83        96
+DPL                              DATA       82        95
+EA                               BIT        AF       172
+EC                               BIT        AE       173
+ENH                              BIT        E8       218
+ES                               BIT        AC       175
+ET0                              BIT        A9       178
+ET1                              BIT        AB       176
+ET2                              BIT        AD       174
+EX0                              BIT        A8       179
+EX1                              BIT        AA       177
+EXEN2                            BIT        CB       124
+EXF2                             BIT        CE       121
+F0                               BIT        D5        84
+FE                               BIT        9F       150
+GPIEN                            DATA       9C       204
+GPIF                             DATA       9D       205
+GPLS                             DATA       9B       203
+GPMOD                            DATA       9A       202
+IE                               DATA       A8       164
+IE0                              BIT        89       114
+IE1                              BIT        8B       112
+IE2                              DATA       B4       167
+INIT                             CODE     0100       339
+INT0                             BIT        B2        61
+INT1                             BIT        B3        60
+IP                               DATA       B8       165
+IP0D                             BIT        BF       291
+IP2                              DATA       B5       168
+IPH                              DATA       B7       166
+IPH2                             DATA       B6       169
+IT0                              BIT        88       115
+
+C51ASM V1.4            Copyright (c) 2009 Atmel Corp.            PAGE 12
+
+
+
+SYMBOL                           TYPE     VALUE     LINE
+--------------------------------------------------------
+IT1                              BIT        8A       113
+LCD_A0                           BIT        C2       261
+LCD_COMMAND                      CODE     0700       560
+LCD_CS                           BIT        B4       262
+LCD_DATA                         DATA       58       256
+LCD_RD                           BIT        B7       265
+LCD_WR                           BIT        B5       263
+MEMCON                           DATA       96       221
+MISO                             BIT        96        25
+MODF                             BIT        ED       214
+MOSI                             BIT        95        26
+MSG1                             DATA       30       236
+MSG2                             DATA       31       237
+MSG3                             DATA       32       238
+MSG4                             DATA       33       239
+MSG_REC                          NUMBER   0001       327
+MSG_SIZE                         NUMBER   0004       326
+NEXT_TIMER0                      CODE     0758       575
+OV                               BIT        D2        87
+P                                BIT        D0        89
+P1                               DATA       90        13
+P1M0                             DATA       C2        14
+P1M1                             DATA       C3        15
+P1_0                             BIT        90        23
+P1_1                             BIT        91        22
+P1_2                             BIT        92        21
+P1_3                             BIT        93        20
+P1_4                             BIT        94        19
+P1_5                             BIT        95        18
+P1_6                             BIT        96        17
+P1_7                             BIT        97        16
+P2                               DATA       A0        31
+P2M0                             DATA       C4        32
+P2M1                             DATA       C5        33
+P2_0                             BIT        A0        41
+P2_1                             BIT        A1        40
+P2_2                             BIT        A2        39
+P2_3                             BIT        A3        38
+P2_4                             BIT        A4        37
+P2_5                             BIT        A5        36
+P2_6                             BIT        A6        35
+P2_7                             BIT        A7        34
+P3                               DATA       B0        47
+P3M0                             DATA       C6        48
+P3M1                             DATA       C7        49
+P3_0                             BIT        B0        57
+P3_1                             BIT        B1        56
+P3_2                             BIT        B2        55
+P3_3                             BIT        B3        54
+P3_4                             BIT        B4        53
+P3_5                             BIT        B5        52
+P3_6                             BIT        B6        51
+P3_7                             BIT        B7        50
+P4                               DATA       C0        65
+P4M0                             DATA       BE        66
+P4M1                             DATA       BF        67
+P4_0                             BIT        C0        75
+P4_1                             BIT        C1        74
+P4_2                             BIT        C2        73
+
+C51ASM V1.4            Copyright (c) 2009 Atmel Corp.            PAGE 13
+
+
+
+SYMBOL                           TYPE     VALUE     LINE
+--------------------------------------------------------
+P4_3                             BIT        C3        72
+P4_4                             BIT        C4        71
+P4_5                             BIT        C5        70
+P4_6                             BIT        C6        69
+P4_7                             BIT        C7        68
+PAGE                             DATA       86       104
+PCMP                             BIT        BE       182
+PCON                             DATA       87       198
+PS                               BIT        BC       184
+PSW                              DATA       D0        80
+PT0                              BIT        B9       187
+PT1                              BIT        BB       185
+PT2                              BIT        BD       183
+PX0                              BIT        B8       188
+PX1                              BIT        BA       186
+RB8                              BIT        9A       155
+RCAP2H                           DATA       CB       142
+RCAP2L                           DATA       CA       141
+RCLK                             BIT        CD       122
+RDATA1                           DATA       40       242
+RDATA2                           DATA       41       243
+RDATA3                           DATA       42       244
+RDATA4                           DATA       43       245
+RECEIVE_COUNTER_FLAG             DATA       50       250
+REN                              BIT        9C       153
+RFLAG_RELVALUE                   NUMBER   00FC       322
+RH0                              DATA       94       139
+RH1                              DATA       95       140
+RI                               BIT        98       157
+RL0                              DATA       92       137
+RL1                              DATA       93       138
+RS0                              BIT        D3        86
+RS1                              BIT        D4        85
+RXD                              BIT        B0        63
+SADDR                            DATA       A9       161
+SADEN                            DATA       B9       160
+SBUF                             DATA       99       159
+SCK                              BIT        97        24
+SCON                             DATA       98       148
+SCON_REL_VALUE                   NUMBER   0050       324
+SECOND_FLAG                      CODE     0761       582
+SM0                              BIT        9F       149
+SM1                              BIT        9E       151
+SM2                              BIT        9D       152
+SP                               DATA       81        94
+SPCR                             DATA       E9       209
+SPDR                             DATA       EA       210
+SPIF                             BIT        EF       212
+SPINT_PROCESS                    CODE     0300       599
+SPINT_RETURN                     CODE     0324       631
+SPSR                             DATA       E8       208
+SSB                              BIT        94        27
+SSIG                             BIT        EA       216
+T0                               BIT        B4        59
+T1                               BIT        B5        58
+T2                               BIT        90        29
+T2CCA                            DATA       D1       191
+T2CCC                            DATA       D4       194
+T2CCF                            DATA       D5       195
+
+C51ASM V1.4            Copyright (c) 2009 Atmel Corp.            PAGE 14
+
+
+
+SYMBOL                           TYPE     VALUE     LINE
+--------------------------------------------------------
+T2CCH                            DATA       D3       193
+T2CCL                            DATA       D2       192
+T2CON                            DATA       C8       119
+T2EX                             BIT        91        28
+T2MOD                            DATA       C9       129
+TB8                              BIT        9B       154
+TCLK                             BIT        CC       123
+TCON                             DATA       88       107
+TCONB                            DATA       91       136
+TCON_TIMER0_VALUE                NUMBER   0050       317
+TF0                              BIT        8D       110
+TF1                              BIT        8F       108
+TF2                              BIT        CF       120
+TH0                              DATA       8C       133
+TH1                              DATA       8D       134
+TH2                              DATA       CD       135
+TI                               BIT        99       156
+TIMER0_PROCESS                   CODE     0750       569
+TIMER0_RELOADVALUE_H             NUMBER   0006       314
+TIMER0_RETURN                    CODE     0770       592
+TIMER1_RELOADVALUE_H             NUMBER   00DC       315
+TIMER_RELOADVALUE_L              NUMBER   0000       313
+TIME_HOUR                        DATA       03       235
+TIME_MINUTE                      DATA       02       234
+TIME_MINUTE_RELOAD               NUMBER   00C4       320
+TIME_SECOND                      DATA       54       252
+TIME_SECOND_H                    DATA       01       233
+TIME_SECOND_H_RELOAD             NUMBER   00E2       319
+TIME_SECOND_L                    DATA       00       232
+TIME_SECOND_L_RELOAD             NUMBER   00B4       318
+TIME_SECOND_REL                  NUMBER   0082       323
+TL0                              DATA       8A       130
+TL1                              DATA       8B       131
+TL2                              DATA       CC       132
+TMOD                             DATA       89       117
+TMOD_TIMER0_VALUE                NUMBER   0020       316
+TR0                              BIT        8C       111
+TR1                              BIT        8E       109
+TR2                              BIT        CA       125
+TXD                              BIT        B1        62
+TXE                              BIT        EC       215
+UART                             CODE     01DD       444
+UART_TRUE                        CODE     01EF       453
+UD                               BIT        D1        88
+WCOL                             BIT        EE       213
+WDATA                            DATA       57       255
+WDTCON                           DATA       A7       144
+WDTRST                           DATA       A6       143
+WRITEDATA                        CODE     0675       552
+XTAL1                            BIT        C0        77
+XTAL2                            BIT        C1        76
